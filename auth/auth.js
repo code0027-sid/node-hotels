@@ -7,7 +7,7 @@ passport.use(
   new LocalStrategy(async (username, password, done) => {
     try {
       // 🔍 Step 1: Find user from DB by username
-      const user = await User.findOne({ userName: username });
+      const user = await User.findOne({  username });
 
       //  If no user found
       if (!user) {
@@ -15,8 +15,8 @@ passport.use(
       }
 
       //  Step 2 Compare password 
-      const isPasswordMatch = user.password === password;
-
+      const isPasswordMatch =await user.comparePassword(password);
+       
       if (isPasswordMatch) {
         return done(null, user); 
       } else {

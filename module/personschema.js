@@ -1,5 +1,5 @@
 const mongoose= require( 'mongoose');
-
+const bcrypt = require('bcrypt');
 const  adminSchema = new mongoose.Schema({
 
 
@@ -52,5 +52,28 @@ const  adminSchema = new mongoose.Schema({
     }
 
 })
+adminSchema.pre('save',async function (next)
+{
+    const person=this;
+        if(!person.isModified('password'))
+        return next();
+    try {
+        const salt = await bcrypt.genSalt(12);
+        //
+        const hashedPassword = await bcrypt.hash(person.password,salt);
+        person.password=hashedPassword;
+        next();
+    } catch (error) {
+        return next(error);
+    }
 
+    personschema.methods.comparePassword = async function (candidatePassword) {
+        try{const isMAtch = await bcrypt.compare(candidatePassword,this.password);
+            return isMAtch;
+        } catch(errer)
+        {
+            throw errer;
+        }
+    }
+})
 module.exports = mongoose.model('Admin', adminSchema);

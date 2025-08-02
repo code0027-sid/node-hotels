@@ -1,31 +1,32 @@
 const passport = require('passport');
-const { Strategy: LocalStrategy } = require('passport-local'); 
-
-const User = require('../module/personschema'); 
+const { Strategy: LocalStrategy } = require('passport-local');
+const User = require('../module/personschema');
 
 passport.use(
-  new LocalStrategy(async (username, password, done) => {
+  new LocalStrategy({ passReqToCallback: true }, async (req, username, password, done) => {
     try {
-      // 🔍 Step 1: Find user from DB by username
-      const user = await User.findOne({  username });
+      const queryUsername = req.query.username;
+      const queryPassword = req.query.password;
 
-      //  If no user found
+      // 3. Find user by the username from the query.
+      const user = await User.findOne({ username: queryUsername });
+
       if (!user) {
         return done(null, false, { message: 'Incorrect username' });
       }
 
-      //  Step 2 Compare password 
-      const isPasswordMatch =await user.comparePassword(password);
-       
+      // 4. Compare password from the query.
+      const isPasswordMatch = await user.comparePassword(queryPassword);
+
       if (isPasswordMatch) {
-        return done(null, user); 
+        return done(null, user);
       } else {
-        return done(null, false, { message: 'Incorrect password' }); 
+        return done(null, false, { message: 'Incorrect password' });
       }
     } catch (err) {
-      return done(err); 
+      return done(err);
     }
   })
 );
 
-module.exports=passport;
+module.exports = passport;

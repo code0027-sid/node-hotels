@@ -28,7 +28,7 @@ const  adminSchema = new mongoose.Schema({
     mobile: {
         type:Number ,
         required:true,
-        match: [/^[6-9]\d{9}$/, 'Invalid Indian mobile number'],
+        
     },
     address:{
             type :String,
@@ -39,7 +39,7 @@ const  adminSchema = new mongoose.Schema({
         required:true,
         min: 0,
     },
-    userName:{
+    username:{
         type : String,
         required:true,
         unique: true,
@@ -52,6 +52,7 @@ const  adminSchema = new mongoose.Schema({
     }
 
 })
+// Hashes the password before saving
 adminSchema.pre('save',async function (next)
 {
     const person=this;
@@ -59,7 +60,7 @@ adminSchema.pre('save',async function (next)
         return next();
     try {
         const salt = await bcrypt.genSalt(12);
-        //
+        
         const hashedPassword = await bcrypt.hash(person.password,salt);
         person.password=hashedPassword;
         next();
@@ -67,13 +68,16 @@ adminSchema.pre('save',async function (next)
         return next(error);
     }
 
-    personschema.methods.comparePassword = async function (candidatePassword) {
+    
+});
+// Compares the candidate password with the stored hash
+adminSchema.methods.comparePassword = async function (candidatePassword) {
         try{const isMAtch = await bcrypt.compare(candidatePassword,this.password);
             return isMAtch;
         } catch(errer)
         {
             throw errer;
         }
-    }
-})
+    };
+
 module.exports = mongoose.model('Admin', adminSchema);

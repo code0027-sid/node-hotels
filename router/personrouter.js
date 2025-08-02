@@ -5,7 +5,7 @@ const passport = require('passport');
 
 router.use(express.json());
 
-router.post("/person", async (req, res) => {
+router.post('/signup', async (req, res) => {
   try {
     const data = req.body;
     const newPerson = new prof(data);
@@ -21,11 +21,11 @@ router.post("/person", async (req, res) => {
 // Protected GET route
 router.get('/person', passport.authenticate('local', { session: false }), async (req, res) => {
   try {
-    const foundperson = await prof.find();
-    console.log("Person found in DB");
+    const foundperson = await prof.findById(req.user.id, '-password');
+    console.log("Protected data fetched for user:", req.user.username);
     res.status(200).json(foundperson);
   } catch (error) {
-    res.status(404).json(error);
+    res.status(500).json(error);
   }
 });
 
